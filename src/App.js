@@ -12,6 +12,8 @@ const App = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [merchant, setMerchant] = useState(null);
+  const [acquirer, setAcquirer] = useState(null);
   const [transactionReportResponse, setTransactionReportResponse] = useState("");
   const [transactionResponse, setTransactionResponse] = useState("");
   const [clientResponse, setClientResponse] = useState("");
@@ -49,6 +51,8 @@ const App = () => {
     const jsonData = {
       fromDate: fromDate,
       toDate: toDate,
+      merchant: merchant,
+      acquirer: acquirer
     };
     const response = axios.post("http://localhost:9090/transaction/report", jsonData, { headers: { "Authorization": `Bearer ${authTokenStr}` } }).then(
       (response) => {
@@ -129,6 +133,9 @@ const App = () => {
         <h1>Transaction Report</h1>
         <input type="text" placeholder="From Date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         <input type="text" placeholder="To Date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        <input type="number" placeholder="Merchant" value={merchant} onChange={(e) => setMerchant(e.target.value)} />
+        <input type="number" placeholder="Acquirer" value={acquirer} onChange={(e) => setAcquirer(e.target.value)} />
+        
         <button onClick={transactionReport}>Transaction Report</button>
         <p> {transactionReportResponse} </p>
       </div>
