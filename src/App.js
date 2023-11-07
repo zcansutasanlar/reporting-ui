@@ -16,6 +16,7 @@ const App = () => {
   const [acquirer, setAcquirer] = useState(null);
   const [transactionReportResponse, setTransactionReportResponse] = useState("");
   const [transactionResponse, setTransactionResponse] = useState("");
+  const [transactionQueryResponse, setTransactionQueryResponse] = useState("");
   const [clientResponse, setClientResponse] = useState("");
 
   const [transactionReportVisible, setTransactionReportVisible] = useState(false);
@@ -54,7 +55,7 @@ const App = () => {
       merchant: merchant,
       acquirer: acquirer
     };
-    const response = axios.post("http://localhost:9090/transaction/report", jsonData, { headers: { "Authorization": `Bearer ${authTokenStr}` } }).then(
+    const response = axios.post("http://localhost:9090/transaction/report", jsonData, { headers: { "Authorization": `${authTokenStr}` } }).then(
       (response) => {
         if (response !== undefined) {
           setTransactionReportResponse(JSON.stringify(response.data.data.response))
@@ -63,6 +64,7 @@ const App = () => {
     ).catch((error) => {
       setTransactionResponse(" ");
       setClientResponse(" ");
+      setTransactionQueryResponse(" ")
       setTransactionReportResponse(" ")
       setTransactionReportVisible(false)
       console.error(error);
@@ -74,20 +76,33 @@ const App = () => {
     const jsonData = {
       transactionId: "1067301-1675430916-3"
     };
-    const response = axios.post("http://localhost:9090/client/get", jsonData, { headers: { "Authorization": `Bearer ${authTokenStr}` } }).then(
+    const response = axios.post("http://localhost:9090/client/get", jsonData, { headers: { "Authorization": `${authTokenStr}` } }).then(
       (response) => {
-        if (response.data.data.status !== "DECLINED") {
           setClientResponse(JSON.stringify(response.data.data.customerInfo))
-        } else {
-          setTransactionResponse(" ");
-          setClientResponse(" ");
-          setTransactionReportResponse(" ")
-          setTransactionReportVisible(false)
-        }
       }
     ).catch((error) => {
       setTransactionResponse(" ");
       setClientResponse(" ");
+      setTransactionQueryResponse(" ")
+      setTransactionReportResponse(" ")
+      setTransactionReportVisible(false)
+      console.error(error);
+      // Handle error
+    });
+  };
+
+  const queryTransaction = async () => {
+    const jsonData = {
+      fromDate: fromDate
+    };
+    const response = axios.post("http://localhost:9090/transaction/query", jsonData, { headers: { "Authorization": `${authTokenStr}` } }).then(
+      (response) => {
+        setTransactionQueryResponse(JSON.stringify(response.data.data))
+      }
+    ).catch((error) => {
+      setTransactionResponse(" ");
+      setClientResponse(" ");
+      setTransactionQueryResponse(" ")
       setTransactionReportResponse(" ")
       setTransactionReportVisible(false)
       console.error(error);
@@ -99,25 +114,28 @@ const App = () => {
     const jsonData = {
       transactionId: "1067301-1675430916-3"
     };
-    const response = axios.post("http://localhost:9090/transaction/get", jsonData, { headers: { "Authorization": `Bearer ${authTokenStr}` } }).then(
+    const response = axios.post("http://localhost:9090/transaction/get", jsonData, { headers: { "Authorization": `${authTokenStr}` } }).then(
       (response) => {
-        if (response.data.status !== "DECLINED") {
           setTransactionResponse(JSON.stringify(response.data.data))
-        }else {
-          setTransactionResponse(" ");
-          setClientResponse(" ");
-          setTransactionReportResponse(" ")
-          setTransactionReportVisible(false)
-        }
       }
     ).catch((error) => {
       setTransactionResponse(" ");
       setClientResponse(" ");
+      setTransactionQueryResponse(" ")
       setTransactionReportResponse(" ")
       setTransactionReportVisible(false)
       console.error(error);
       // Handle error
     });
+  };
+
+  const clear = async () => {
+    
+      setTransactionResponse(" ")
+      setClientResponse(" ")
+      setTransactionQueryResponse(" ")
+      setTransactionReportResponse(" ")
+     
   };
 
   return (
@@ -130,12 +148,18 @@ const App = () => {
       </div>
 
       <div style={{ display: transactionReportVisible ? 'block' : 'none' }}>
+        <h1>Clear</h1>
+        <button onClick={clear}>CLEAR !</button>
+        <p> {transactionResponse} </p>
+      </div>
+
+      <div style={{ display: transactionReportVisible ? 'block' : 'none' }}>
         <h1>Transaction Report</h1>
         <input type="text" placeholder="From Date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         <input type="text" placeholder="To Date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         <input type="number" placeholder="Merchant" value={merchant} onChange={(e) => setMerchant(e.target.value)} />
         <input type="number" placeholder="Acquirer" value={acquirer} onChange={(e) => setAcquirer(e.target.value)} />
-        
+
         <button onClick={transactionReport}>Transaction Report</button>
         <p> {transactionReportResponse} </p>
       </div>
@@ -144,6 +168,13 @@ const App = () => {
         <h1>Get Transaction</h1>
         <button onClick={getTransaction}>Get Transaction</button>
         <p> {transactionResponse} </p>
+      </div>
+
+      <div style={{ display: transactionReportVisible ? 'block' : 'none' }}>
+        <h1>Query Transaction</h1>
+        <input type="text" placeholder="From Date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <button onClick={queryTransaction}>Query Transaction</button>
+        <p> {transactionQueryResponse} </p>
       </div>
 
       <div style={{ display: transactionReportVisible ? 'block' : 'none' }}>
@@ -158,16 +189,5 @@ const App = () => {
 
   );
 };
-
-/*
-const Dashboard = () => {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    // Giriş bilgilerini kullanarak API'dan JSON verilerini al
-
-    
-  }, []);
-};*/
 
 export default App;
